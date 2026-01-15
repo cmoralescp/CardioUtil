@@ -1,0 +1,29 @@
+{
+  "name": "cardioutil",
+  "version": "1.0.0",
+  "description": "Programas utiles para los procesos de Cardio",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cmoralescp/CardioUtil.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cmoralescp/CardioUtil/issues"
+  },
+  "homepage": "https://github.com/cmoralescp/CardioUtil#readme",
+  "dependencies": {
+    "@azure/msal-node": "^3.6.1",
+    "axios": "^1.10.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.2.1",
+    "nodemailer": "^7.0.12",
+    "xlsx": "^0.18.5"
+  }
+}
