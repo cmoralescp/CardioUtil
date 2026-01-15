@@ -10,5 +10,5 @@ app.use(express.json()); // Para que el servidor entienda JSON
 app.use("/api/v1", todasLasRutas);
 
 app.listen(PORT, () =>
-  console.log(`Servidor modular corriendo en puerto ${PORT}`)
+  console.log(`Servidor modular corriendo en puerto ${PORT}.`)
 );

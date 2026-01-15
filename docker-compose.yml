@@ -1,0 +1,11 @@
+services:
+  cardio-util:
+    build: .
+    container_name: node_servidor_alerta
+    ports:
+      - "4040:4040"
+    volumes:
+      - .:/app # Sincroniza tu carpeta local con /app en el contenedor
+      - /app/node_modules # Evita que los nodos locales sobrescriban los del contenedor
+    env_file:
+      - .env  # <--- Docker leerá automáticamente todas las variables de tu archivo
