@@ -1,8 +1,9 @@
+const { response } = require("express");
 const emailService = require("../../services/sistemas/operaciones/emailService");
 const excelService = require("../../services/sistemas/operaciones/excelService");
 const office365Service = require("../../services/sistemas/operaciones/office365Service");
 // Simulación de lógica de negocio
-exports.getDetalleBuzon = async (req, res) => {
+exports.getDetalleBuzon = async (req = request, res = response) => {
   try {
     const mailboxesAll = await office365Service.listUsersAndMailboxInfo();
     const mailboxes = mailboxesAll.filter(
@@ -35,7 +36,8 @@ exports.getDetalleBuzon = async (req, res) => {
         "Informacion generada automaticamente consumiendo API Office 365",
         attachments
       );
-      process.exit(1);
+      //   process.exit(1);
+      res.end();
     } else {
       console.log(
         "No se encontraron buzones de correo o no se pudo obtener su información."
