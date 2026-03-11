@@ -19,4 +19,19 @@ docker-compose restart cardio-util
 
 
 
+Para la coenxion con la base de datos, se agrego lo siguiente:
+
+this.#pool = new mssql.ConnectionPool({
+    user: this.#dbConfig.user,
+    password: this.#dbConfig.password,
+    server: this.#dbConfig.server,
+    database: this.#dbConfig.database,
+    port: this.#dbConfig.port ? this.#dbConfig.port : 1433,
+    options: {
+        encrypt: this.#dbConfig.encrypt ? this.#dbConfig.encrypt : false
+    },
+    requestTimeout: 0           //ESTA LINEA SE AGREGO AL INDEX DE LA LIBRERIA PORQUE NO SOPORTE EL requestTimeout MAYOR A 15000
+});
+
+
 

@@ -21,10 +21,13 @@
   "homepage": "https://github.com/cmoralescp/CardioUtil#readme",
   "dependencies": {
     "@azure/msal-node": "^3.6.1",
+    "adm-zip": "^0.5.16",
     "axios": "^1.10.0",
-    "dotenv": "^16.5.0",
+    "dotenv": "^16.6.1",
     "express": "^5.2.1",
+    "mssql": "^12.2.0",
     "nodemailer": "^7.0.12",
+    "rest-mssql-nodejs": "^1.0.10",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

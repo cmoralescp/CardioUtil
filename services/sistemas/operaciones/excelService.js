@@ -28,8 +28,7 @@ const excelService = {
       const values = lines[i].split(",");
       if (values.length !== headers.length) {
         console.warn(
-          `La fila ${
-            i + 1
+          `La fila ${i + 1
           } tiene un número de columnas diferente al de los encabezados. Se saltará o se procesará parcialmente.`
         );
         continue;
