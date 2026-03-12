@@ -1,10 +1,11 @@
 require("dotenv").config();
-const { response } = require("express");
+const { response, request } = require("express");
 const restSql = require('rest-mssql-nodejs')
 const emailService = require("../../services/sistemas/operaciones/emailService");
 const excelService = require("../../services/sistemas/operaciones/excelService");
 const office365Service = require("../../services/sistemas/operaciones/office365Service");
 const AdmZip = require("adm-zip");
+const { getDataSUNAT } = require("./scrapping/scrapping");
 
 const DB_CP = new (restSql)({
   user: process.env.DB_USER,
@@ -147,4 +148,14 @@ exports.getDataERI = async (req = request, res = response) => {
     console.log(error);
     return res.status(500).json(error);
   }
+}
+//http://localhost:4040/api/v1/sistemas/operaciones/getDataClienteSUNAT
+exports.getDataClienteSUNAT = async (req = request, res = response) => {
+  await getDataSUNAT();
+  return res.status(200).json({ message: 'ok' });
+}
+//http://localhost:4040/api/v1/sistemas/operaciones/getDataClienteSUNATMasiva
+exports.getDataClienteSUNATMasiva = async (req = request, res = response) => {
+  await getDataSUNAT();
+  return res.status(200).json({ message: 'ok' });
 }

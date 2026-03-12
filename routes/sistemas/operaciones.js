@@ -5,5 +5,7 @@ const operacionesController = require("../../controllers/sistemas/operacionesCon
 // Asociamos URL con la función del controlador
 router.get("/getDetalleBuzon", operacionesController.getDetalleBuzon);
 router.get("/getDataERI", operacionesController.getDataERI);
+router.get("/getDataClienteSUNAT", operacionesController.getDataClienteSUNAT);
+router.get("/getDataClienteSUNATMasiva", operacionesController.getDataClienteSUNATMasiva);
 
 module.exports = router;
