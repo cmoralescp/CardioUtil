@@ -5,7 +5,7 @@ const emailService = require("../../services/sistemas/operaciones/emailService")
 const excelService = require("../../services/sistemas/operaciones/excelService");
 const office365Service = require("../../services/sistemas/operaciones/office365Service");
 const AdmZip = require("adm-zip");
-const { getDataSUNAT } = require("./scrapping/scrapping");
+const { getDataSUNAT, getDataSUNATMasiva } = require("./scrapping/scrapping");
 
 const DB_CP = new (restSql)({
   user: process.env.DB_USER,
@@ -156,6 +156,6 @@ exports.getDataClienteSUNAT = async (req = request, res = response) => {
 }
 //http://localhost:4040/api/v1/sistemas/operaciones/getDataClienteSUNATMasiva
 exports.getDataClienteSUNATMasiva = async (req = request, res = response) => {
-  await getDataSUNAT();
+  await getDataSUNATMasiva();
   return res.status(200).json({ message: 'ok' });
 }
