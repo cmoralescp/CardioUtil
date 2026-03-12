@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require("sequelize");
+const { Sequelize } = require("sequelize");
 const secualizeConfig = {
     dialect: 'mssql',
     dialectOptions: {
@@ -41,21 +41,6 @@ const getSecualize = (EMP) => {
     }
 };
 
-const sequelize = getSecualize('CP');
-const ClienteDataSUNAT = sequelize.define('ClienteDataSUNAT', {
-    PKID: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    DocIdentidad: DataTypes.STRING(60),
-    Codigo: DataTypes.STRING(60),
-    Direccion: DataTypes.STRING(200),
-    Tipo: DataTypes.STRING(100),
-    Actividad: DataTypes.STRING(100)
-}, {
-    tableName: 'ClienteDataSUNAT',
-    timestamps: false // Para que no busque campos createdAt/updatedAt
-});
-
-module.exports = ClienteDataSUNAT;
+module.exports = {
+    getSecualize
+}

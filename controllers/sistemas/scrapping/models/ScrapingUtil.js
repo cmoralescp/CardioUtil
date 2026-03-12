@@ -37,7 +37,7 @@ export class ScrapingUtil {
             await this.getEstablecimientosAnexos(page);
             await this.generateScreenShot(page);
             const data = await this.getTablaAnexos(page, valor);
-            await this.objCallback.registerDatabase(data, valor);
+            await this.objCallback.registerEstablecimientoDatabase(data, valor);
         } catch (error) {
             console.log(error);
         }

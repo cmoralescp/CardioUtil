@@ -11,10 +11,6 @@ class Establecimiento {
         this.Actividad = actividad
         this.DocIdentidad = docIdentidad
     }
-    async register() {
-        console.log(111);
-        
-    }
 }
 
 module.exports = { Establecimiento };

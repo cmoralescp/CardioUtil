@@ -34,33 +34,37 @@ export class ScrapingUtilMasiva {
         if (linkSelector) {
             // Esperamos a que el botón sea visible antes de clickear
             await page.waitForSelector(linkSelector);
-
             const [download] = await Promise.all([
                 page.waitForEvent('download'), // Espera a que comience la descarga
                 page.click(linkSelector)       // Dispara el clic en el enlace
             ]);
-
-            // 2. Obtenemos el nombre sugerido por el servidor o usamos uno personalizado
-            const nombreArchivo = await download.suggestedFilename();
-
-            // 3. Construimos la ruta final en tu carpeta assets
-            const rutaFinal = this.objCallback.getFinalPathZip() //path.join(this.assetsPath, nombreArchivo);
-
+            const rutaFinalZip = this.objCallback.getFinalPathType('zip')
             // 4. Guardamos el archivo desde la memoria temporal a la ruta física
-            await download.saveAs(rutaFinal);
+            await download.saveAs(rutaFinalZip);
+            console.log(`Archivo ZIP guardado exitosamente en: ${rutaFinalZip}`);
+            try {
+                const carpetaPadre = this.objCallback.getFinalPathTypeFolder('txt');
+                // 3. Descomprimimos directamente en esa carpeta
+                const zip = this.objCallback.getAdmZip(rutaFinalZip);
+                // 1. Obtener los nombres de los archivos dentro del ZIP
+                const entries = zip.getEntries();
+                entries.forEach(entry => {
+                    console.log(`Archivo a extraer: ${entry.entryName}`);
+                });
+                zip.extractAllTo(carpetaPadre, true);
+                const nombreArchivoExtraido = entries.length > 0 ? entries[0].entryName : null;
+                console.log(nombreArchivoExtraido);
+                const rutaFinalTXT = carpetaPadre + nombreArchivoExtraido;
+                await this.objCallback.registerDatabase(rutaFinalTXT);
 
-            console.log(`Archivo ZIP guardado exitosamente en: ${rutaFinal}`);
-
-            // Opcional: Tomar screenshot de la página después de la descarga
-            await this.generateScreenShot(page, 'post_descarga');
-
-
-
+                console.log(`Contenido extraído directamente en: ${carpetaPadre}`);
+            } catch (zipError) {
+                console.error(`Error al descomprimir: ${zipError.message}`);
+            }
         } else {
             console.error(`Criterio no descargado.`);
         }
     }
-
     async onChangeCriterioBusqueda(page) {
         const { tipoBusqueda } = this.objParameter;
         const inputs = this.objParameter.getListaInputIDHTML();
@@ -80,72 +84,6 @@ export class ScrapingUtilMasiva {
         await this.sendListaMultiple(page, botonSelectorSend);
         await this.downloadData(page, linkDescargar);
         await this.generateScreenShot(page);
-
-        // await page.waitForSelector(inputSelector, { state: 'visible', timeout: 10000 });
-        // await page.fill(inputSelector, '20131257750');
-        // await this.generateScreenShot(page);
-
-
-    }
-    async fillFormularioInicialYBuscar(page) {
-        try {
-            const { tipoBusqueda, valor } = this.objParameter;
-            const inputs = this.objParameter.getListaInputIDHTML();
-            const inputSelector = inputs[tipoBusqueda];
-            const btnBuscarSelector = '#btnAceptar';
-            console.log(`Escribiendo valor: ${valor}`);
-            // 1. Aseguramos que el input esté listo y escribimos
-            await page.waitForSelector(inputSelector, { state: 'visible', timeout: 10000 });
-            await page.fill(inputSelector, valor); // fill es mejor que type para borrar contenido previo
-            await this.generateScreenShot(page);
-            // 2. Click en Buscar
-            console.log("Haciendo clic en Buscar...");
-            await page.click(btnBuscarSelector);
-            await this.generateScreenShot(page);
-            await this.getEstablecimientosAnexos(page);
-            await this.generateScreenShot(page);
-            const data = await this.getTablaAnexos(page, valor);
-            await this.objCallback.registerDatabase(data, valor);
-        } catch (error) {
-            console.log(error);
-        }
-    }
-    async getEstablecimientosAnexos(page) {
-        // Usamos la clase específica del botón que aparece en tu captura
-        const btnAnexosSelector = '.btnInfLocAnex';
-
-        try {
-            console.log("Haciendo clic en Establecimientos Anexos...");
-            await page.waitForSelector(btnAnexosSelector, { state: 'visible' });
-            await page.click(btnAnexosSelector);
-        } catch (error) {
-            console.error("No se pudo hacer clic en el botón de anexos:", error.message);
-        }
-    }
-    async getTablaAnexos(page) {
-        console.log("Extrayendo datos de la tabla de establecimientos...");
-
-        // Esperamos a que la tabla esté presente en el DOM
-        await page.waitForSelector('table.table', { state: 'visible' });
-
-        const datos = await page.$$eval('table.table tbody tr', (rows) => {
-            return rows.map(row => {
-                const cells = row.querySelectorAll('td');
-                // Solo procesamos si la fila tiene celdas (evita headers o filas vacías)
-                if (cells.length >= 3) {
-                    return {
-                        codigo: cells[0].innerText.trim(),
-                        tipo: cells[1].innerText.trim(),
-                        direccion: cells[2].innerText.trim(),
-                        actividad: cells[3] ? cells[3].innerText.trim() : '-'
-                    };
-                }
-                return null;
-            }).filter(item => item !== null); // Limpiamos nulos
-        });
-        console.log(`Se encontraron ${datos.length} establecimientos.`);
-        console.log(datos);
-        return datos;
     }
     async generateScreenShot(page) {
         const finalPath = this.objCallback.getFinalPath()
