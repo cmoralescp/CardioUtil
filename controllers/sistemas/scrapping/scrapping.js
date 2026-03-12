@@ -65,7 +65,7 @@ const getDataClienteSUNATMasiva = async () => {
         // const objParameter = new Parameter('DNI', '46788906');
         // const objParameter = new Parameter('RAZON_SOCIAL', 'ASOCIACION PERUANO JAPONESA');
         const objUtil = new ScrapingUtil(objParameter, objCallback);
-        await page.goto('https://e-consultaruc.sunat.gob.pe/cl-ti-itmrconsruc/FrameCriterioBusquedaWeb.jsp');
+        await page.goto('https://e-consultaruc.sunat.gob.pe/cl-ti-itmrconsmulruc/jrmS00Alias');
         await objUtil.onChangeCriterioBusqueda(page);
         await browser.close();
 
