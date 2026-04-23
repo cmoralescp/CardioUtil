@@ -159,3 +159,17 @@ exports.getDataClienteSUNATMasiva = async (req = request, res = response) => {
   await getDataSUNATMasiva();
   return res.status(200).json({ message: 'ok' });
 }
+//http://localhost:4040/api/v1/sistemas/operaciones/getVideoBalanceadorLink
+exports.getVideoBalanceadorLink = async (req = request, res = response) => {
+  const { dataURLMiraflores, dataURLLurin, dataURLPorDefecto } = req.query;
+  const ipClienteRequest = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const ipCliente = ipClienteRequest.includes(',') ? ipClienteRequest.split(',')[0].trim() : ipClienteRequest;
+  const ipClienteRegex = ipCliente.match(/(\d+\.\d+\.\d+\.\d+)/)?.[0] || ipCliente;
+  let url = dataURLPorDefecto;
+  if (ipClienteRegex.includes('192.168.100')) {
+    url = dataURLMiraflores;
+  } else if (ipClienteRegex.includes('192.168.200')) {
+    url = dataURLLurin;
+  }
+  return res.status(200).json({ url });
+}
