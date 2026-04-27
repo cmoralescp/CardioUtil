@@ -20,6 +20,8 @@ app.use(cors({
 // Montamos toda la estructura de rutas
 app.use("/api/v1", todasLasRutas);
 
+require('./database');
+
 app.listen(PORT, () =>
   console.log(`Servidor modular corriendo en puerto ${PORT}.`)
 );

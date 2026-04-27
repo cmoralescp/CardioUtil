@@ -8,5 +8,6 @@ router.get("/getDataERI", operacionesController.getDataERI);
 router.get("/getDataClienteSUNAT", operacionesController.getDataClienteSUNAT);
 router.get("/getDataClienteSUNATMasiva", operacionesController.getDataClienteSUNATMasiva);
 router.get("/getVideoBalanceadorLink", operacionesController.getVideoBalanceadorLink);
+router.get("/validaConexion", operacionesController.validaConexion);
 
 module.exports = router;

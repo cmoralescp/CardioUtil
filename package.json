@@ -26,11 +26,14 @@
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "express": "^5.2.1",
+    "mongoose": "^9.5.0",
     "mssql": "^12.2.0",
     "nodemailer": "^7.0.12",
     "playwright": "^1.58.2",
+    "qrcode-terminal": "^0.12.0",
     "rest-mssql-nodejs": "^1.0.10",
     "sequelize": "^6.37.8",
+    "whatsapp-web.js": "^1.34.7",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

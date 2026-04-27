@@ -6,6 +6,8 @@ const excelService = require("../../services/sistemas/operaciones/excelService")
 const office365Service = require("../../services/sistemas/operaciones/office365Service");
 const AdmZip = require("adm-zip");
 const { getDataSUNAT, getDataSUNATMasiva } = require("./scrapping/scrapping");
+const connectionNetworkService = require("../../services/sistemas/operaciones/connectionNetwork");
+const Dedicado = require("../../models/Dedicado");
 
 const DB_CP = new (restSql)({
   user: process.env.DB_USER,
@@ -162,6 +164,9 @@ exports.getDataClienteSUNATMasiva = async (req = request, res = response) => {
 //http://localhost:4040/api/v1/sistemas/operaciones/getVideoBalanceadorLink
 exports.getVideoBalanceadorLink = async (req = request, res = response) => {
   const { dataURLMiraflores, dataURLLurin, dataURLPorDefecto } = req.query;
+  if (!dataURLMiraflores || !dataURLLurin || !dataURLPorDefecto) {
+    return res.status(400).json({ error: 'Faltan parámetros requeridos' });
+  }
   const ipClienteRequest = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   const ipCliente = ipClienteRequest.includes(',') ? ipClienteRequest.split(',')[0].trim() : ipClienteRequest;
   const ipClienteRegex = ipCliente.match(/(\d+\.\d+\.\d+\.\d+)/)?.[0] || ipCliente;
@@ -173,3 +178,107 @@ exports.getVideoBalanceadorLink = async (req = request, res = response) => {
   }
   return res.status(200).json({ url });
 }
+//http://localhost:4040/api/v1/sistemas/operaciones/validaConexion
+//http://localhost:4040/api/v1/sistemas/operaciones/validaConexion?mostrarSoloConexionesCaidas=1
+exports.validaConexion = async (req, res) => {
+  // Captura de parámetro de filtro (si es 1 muestra todo, si no, solo caídas)
+  const mostrarTodo = req.query.mostrarSoloConexionesCaidas && req.query.mostrarSoloConexionesCaidas === '1' ? false : true;
+  // let listaIP = [
+  //   {
+  //     "ip": "10.10.21.18",
+  //     "sede": "CIRION",
+  //     "validaPuertos": true,
+  //     "puertos": [7080]
+  //   },
+  //   {
+  //     "ip": "10.10.21.50",
+  //     "sede": "CIRION",
+  //     "validaPuertos": true,
+  //     "puertos": [7080]
+  //   },
+  //   {
+  //     "ip": "192.168.100.15",
+  //     "sede": "CIRION",
+  //     "validaPuertos": true,
+  //     "puertos": [5000, 27017]
+  //   },
+  //   {
+  //     "ip": "192.100.200.1",
+  //     "sede": "LURIN"
+  //   }
+  // ];
+  // Ejecutar directament en MongoDB para subir la data, solo lo he puesto aqui como referencia
+  //db.dedicados.insertMany(listaIP)
+
+  const listaIP = await Dedicado.find().lean();
+
+  try {
+    let filasExcel = [];
+
+    for (const item of listaIP) {
+      const estadoICMP = await connectionNetworkService.testICMP(item.ip);
+      if (item.validaPuertos && Array.isArray(item.puertos)) {
+        // Generar una fila por cada puerto
+        for (const p of item.puertos) {
+          const estadoPuerto = await connectionNetworkService.testPort(item.ip, p);
+          filasExcel.push({
+            IP: item.ip,
+            SEDE: item.sede,
+            CONEXION: estadoICMP,
+            PUERTO_ESTADO: `Puerto ${p}: ${estadoPuerto}`,
+            _esCaida: estadoICMP === 'FALLIDA' || estadoPuerto.includes('CERRADO')
+          });
+        }
+      } else {
+        // Fila única si no valida puertos
+        filasExcel.push({
+          IP: item.ip,
+          SEDE: item.sede,
+          CONEXION: estadoICMP,
+          PUERTO_ESTADO: '',
+          _esCaida: estadoICMP === 'FALLIDA'
+        });
+      }
+    }
+
+    // Filtrado lógico
+    const resultadoFinal = mostrarTodo
+      ? filasExcel
+      : filasExcel.filter(f => f._esCaida);
+
+    let dataLimpia = [];
+
+    if (resultadoFinal.length > 0) {
+      // Limpiamos la propiedad auxiliar de control antes de enviar
+      dataLimpia = resultadoFinal.map(({ _esCaida, ...resto }) => resto);
+  
+      const excelBuffer = await excelService.saveBuffer(dataLimpia);
+      const attachments = {
+        filename: "reporte.xlsx",
+        content: excelBuffer,
+      };
+      const dataFormat = {
+        sender: process.env.RECEIVER_VALIDATION_EQUIPOS_DEDICADOS,
+        message: "Informacion generada automaticamente",
+        mesString: (mes) => mes.length === 1 ? `0${mes}` : mes,
+        getAsunto: () => {
+          let asunto = `Validacion de conexion - ${new Date().toLocaleDateString()} ${mostrarTodo ? '(Mostrando todo)' : '(Solo caídas)'}`;
+          asunto += ` - Data de conexion de equipos`
+          return asunto;
+        }
+      };
+      await emailService.send(
+        dataFormat.sender,
+        dataFormat.getAsunto(),
+        dataFormat.message,
+        attachments
+      );
+    }
+
+    res.json(dataLimpia);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Error en el proceso de validación' });
+  }
+};
