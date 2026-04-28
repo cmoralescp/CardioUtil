@@ -176,7 +176,7 @@ exports.getVideoBalanceadorLink = async (req = request, res = response) => {
   } else if (ipClienteRegex.includes('192.168.200')) {
     url = dataURLLurin;
   }
-  return res.status(200).json({ url });
+  return res.status(200).json({ urlListData: url });
 }
 //http://localhost:4040/api/v1/sistemas/operaciones/validaConexion
 //http://localhost:4040/api/v1/sistemas/operaciones/validaConexion?mostrarSoloConexionesCaidas=1
